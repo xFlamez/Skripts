@@ -1,0 +1,123 @@
+options:
+# Skript Made by RedBlackFlame99
+# Discord: redblackflame99#0000
+# Is somthing not working? Join the discord and let me know!
+#
+# Requires:
+#  - Skript 2.7.2
+#  - SkBee
+#
+	prefix: &6&lItemEdit&7 » &f #                      {@prefix}
+	no-permission: &cYou do not have permission! #     {@no-permission}
+	held-item-is-air: &cYou must be holding an item! # {@held-item-is-air}
+	
+	use: SkItemEdit.use
+	permissions: skItemEdit.permissions
+	rename-perms: skItemEdit.rename
+	setlore-perms: skItemEdit.setlore
+	reload-perms: skItemEdit.reload
+	unbreakable-perms: skItemEdit.unbreakable
+	custom_model_data-perms: skItemEdit.cmd
+	durability-perms: skItemEdit.durability
+	addenchant-perms: skItemEdit.addenchants
+	
+
+command /ie [<string>] [<string>] [<integer>]:
+	permission: {@use}
+	aliases: /itemedit
+	trigger:
+		if arg-1 is "rename":
+			rename(player, arg-2)
+		if arg-1 is "setLore":
+			setLore(player, arg-2)
+		if arg-1 is "Unbreakable":
+			Unbreakable(player)
+		if arg-1 is "addEnchant":
+			addEnchant(player, arg-2, arg-3)
+		if arg-1 is "setCustomModelData":
+			setCustomModelData(player, arg-2)
+		if arg-1 is "setDurability":
+			setDurability(player, arg-2)
+		if arg-1 is "hideFlags":
+			hideFlags(player)
+		if arg-1 is "reload":
+			if player has permission "{@reload-perms}":
+				execute player command "/skript reload %script name%"
+		if arg-1 is "support":
+			send "{@prefix}&cIf you find any errors/bugs, please join the discord! %nl%<link:https://discord.gg/wK2DJsHeKN>&f&l(CLICK HERE)"
+		if arg-1 is "permissions":
+			if player has permission "{@permissions}":
+				send "&f------&cPermissions&f------"
+				send "&cRename: &f{@rename-perms}"
+				send "&cSetLore: &f{@setlore-perms}"
+				send "&cUnbreakable: &f{@unbreakable-perms}"
+				send "&cDurability: &f{@durability-perms}"
+				send "&cCustom Model Data: &f{@custom_model_data-perms}"
+				send "&cAdd Enchants: &f{addenchants-perms}"
+				send "&cReload: &f{@reload-perms}"
+function rename(p: player, t: text):
+	if {_t} is not set:
+		send "{@prefix}&cUsage: /ie rename <name>" to {_p}
+		stop
+	{_p} has permission "{@rename-perms}":
+		set name of {_p}'s tool to "%colored {_t}%"
+		send "{@prefix}&aYou have renamed your held item to ""%colored {_t}%&a""" to {_p}
+	else:
+		send "{@no-permission}" to {_p}
+function setLore(p: player, t: text):
+	if {_t} is not set:
+		send "{@prefix}&cUsage: /ie setLore <lore>" to {_p}
+		stop
+	{_p} has permission "{@setlore-perms}":
+		set lore of {_p}'s tool to "%colored {_t}%"
+		send "{@prefix}&aYou have renamed your held item to ""%colored {_t}%&a""" to {_p}
+	else:
+		send "{@no-permission}" to {_p}
+function Unbreakable(p: player):
+	{_p} has permission "{@unbreakable-perms}":
+		set {tool} to {_p}'s tool
+		set {tool} to unbreakable {tool}
+		set {_p}'s held item to {tool}
+		send "{@prefix}&aYou have made your tool unbreakable!" to {_p}
+	else:
+		send "{@no-permission}" to {_p}
+function addEnchant(p: player, enchant: string, amount: integer):
+	if {_enchant} or {_amount} is not set:
+		send "{@prefix}&cUsage: /ie addEnchant <enchant> <amount>" to {_p}
+		stop
+	{_p} has permission "{@addenchant-perms}":
+		enchant {_p}'s tool with "%{_enchant}% %{_amount}%" parsed as enchantment type
+		send "{@prefix}&aYou have enchanted your held item with %{_enchant}% %{_amount}%!" to {_p}
+	else:
+		send "{@no-permission}" to {_p}
+function setCustomModelData(p: player, cmd: string):
+	if {_cmd} is not set:
+		send "{@prefix}&cUsage: /ie setCustomModelData <amount>" to {_p}
+		stop
+	{_p} has permission "{@custom_model_data-perms}":
+		set custom model data of {_p}'s tool to "%{_cmd}%" parsed as integer
+		send "{@prefix}&aYou have set the custom model data of your held item to %{_cmd}%!" to {_p}
+	else:
+		send "{@no-permission}" to {_p}
+function setDurability(p: player, durability: string):
+	if {_durability} is not set:
+		send "{@prefix}&cUsage: /ie setDurability <amount>" to {_p}
+		stop
+	if {_p} has permission "{@durability-perms}":
+		set durability of {_p}'s tool to "%{_durability}%" parsed as integer
+		send "{@prefix}&aYou have set the durability of your held item to %{_durability}%" to {_p}
+	else:
+		send "{@no-permission}" to {_p}
+function hideFlags(p: player):
+	{_p} has permission "skItemEdit.hideFlags":
+		set {_tool} to {_p}'s tool
+		set {_tool} to {_tool} with all flags hidden
+		set {_p}'s held item to {_tool}
+	else:
+		send "{@no-permission}" to {_p}
+
+on tab complete of "/ie":
+	set tab completions for position 1 to "rename", "setLore", "setCustomModelData", "setDurability", "support", "permissions", "addEnchant", "Unbreakable", "hideFlags", and "reload"
+	if tab arg-1 = "addenchant":
+		loop all enchantments:
+			add "%loop-value%" to tab completions for position 2

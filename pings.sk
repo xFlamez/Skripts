@@ -1,0 +1,65 @@
+options:
+# Created By RedBlackFlame99
+# This is a simple Ping Skript for Minecraft
+# Need Help? Is somthing not working? Join the discord! https://discord.gg/Nb6QzXPGfw
+#
+#   Permission: skPinger.pings + skPinger.command
+#
+#   Requires:
+#   - SkBee
+#   - Skript 2.7.2
+#
+	chat color: &f # White
+	ping color: &e
+	ping message: @%loop-player%
+	cooldown: 5 # Seconds
+	cooldown message: &cThere is a cooldown for pinging!
+	actionbar ping message: &aYou have been pinged! &7(By %{player}%)
+	pings disabled: &c%player% has their pings disabled!
+	pings on: &aYou have turned your pings on!
+	pings off: &aYou have turned your pings off!
+	sound: minecraft:block.note_block.pling
+	
+
+
+
+on chat:
+	set {player} to player
+	player has permission "skPinger.pings"
+	loop all players:
+		if message contains "%loop-player%":
+			if {pings::%player's uuid%} = true:
+				if {cooldown::%player's uuid%} is not set:
+					replace all "%loop-player%" with "{@ping color}{@ping message}{@chat color}" in the message
+					play sound "{@sound}" to loop-player
+					add 1 to {pings.amount::%loop-player's uuid%}
+					send the action bar "{@actionbar ping message}" to loop-player
+					set {cooldown::%player's uuid%} to true
+					send the action bar "{@actionbar ping message}" to loop-player
+					wait {@cooldown} seconds
+					delete {cooldown::%player's uuid%}
+				else:
+					send "{@cooldown message}" to player
+					cancel event
+			else:
+				send "{@pings disabled}" to player
+command /pings [<string>]:
+	aliases: ping
+	permission: skPinger.command
+	trigger:
+		arg-1 is "list":
+			{pings.amount::%player's uuid%} is not set:
+				send "&aYou currently have no pings!"
+			else:
+				send "&aYour pings: &f%{pings.amount::%player's uuid%}%"
+				set {pings.amount::%player's uuid%} to 0
+		arg-1 is "disable":
+			set {pings::%player's uuid%} to false
+			send "{@pings off}"
+		arg-1 is "enable":
+			set {pings::%player's uuid%} to true
+			send "{@pings on}"
+	
+on tab complete of "pings":
+	set tab completion for position 1 to "disable", "enable", "list"
+		

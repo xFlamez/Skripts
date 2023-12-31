@@ -1,0 +1,49 @@
+options:
+# Created By RedBlackFlame99
+# Discord: redblackflame99
+# If you find any errors, please let me know in the discord! https://discord.gg/nAnZ3DsWAv
+#
+# Requires
+# - Skript 2.7
+# - SkBee
+#
+# Permissions: 
+# - commandhistory.view
+# - commandhistory.bypass
+#
+
+	concrete color: lime
+	permission message: &cNo Permission!
+	gui name: &8&lCommand History
+
+command /commandhistory [<text>]:
+	aliases: /ch, /commandh, /chistory
+	trigger:
+		if player has permission "commandhistory.view":
+			if arg-1 is "view":
+				commandGui(player)
+			if arg-1 is not set:
+				commandGui(player)
+		else:
+			send "{@permission message}"
+on command: # If you are op, this will not apply!
+	if player does not have permission "commandhistory.bypass":
+		if command is not "commandhistory":
+			set {command::executor::%unix timestamp of now%} to player
+			set {command::command::%unix timestamp of now%} to full command
+function commandGui(p: player):
+	set {n} to 0
+	set {_inverted1::*} to reversed {command::command::*}
+	set {_inverted2::*} to reversed {command::executor::*}
+	set {commandList} to a new chest inventory named "{@gui name}" with 6 rows
+	loop {_inverted1::*}:
+		set slot {n} of {commandList} to {@concrete color} concrete named "<{@concrete color}>/%loop-value%" with lore "&7Executor: %{_inverted2::%loop-index%}%"
+		add 1 to {n}
+		if {n} = 60:
+			stop loop
+	open {commandList} to {_p}
+on tab complete of "/commandhistory" or "/ch" or "/commandh" or "/chistory":
+	set tab completions for position 1 to "view"
+on inventory click:
+	if event-inventory is {commandList}:
+		cancel event
