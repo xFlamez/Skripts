@@ -1,0 +1,348 @@
+options:
+# Created By RedBlackFlame99
+# Discord: rbfz.mc (Support: https://discord.gg/4zqGyUjykn)
+# 
+# Notes:
+#  Usage: How the command is executed
+#  Permission: A Permission with a permission plugin that requires a player to have a permission
+#  Permission Message: If player's do not have the required permission, they will not be able to use it!
+#  Cooldown: You can set the cooldown of the command so player's cannot spam it!
+#  Cooldown Message: This is the message a player gets from spamming the command
+#
+#
+# Table of Contents
+#   Staff Mode: Line 27
+#   Freeze/UnFreeze: Line 56
+#   Staff Chat: Line 65
+#   Report Player: Line 74
+#   Reports: Line 88
+#   Clear Reports: Line 101
+#   Invsee: Line 108
+#   Enderchest: Line 115
+#   Discord Integration: Line 122
+#
+# Requirements: DiSky, skript-reflect, SkBee, and Skript
+#
+#  Staff Mode    ( /staffmode )
+	staffmode gamemode: creative
+	staffmode bgamemode: survival
+	
+	staffmode in staff mode: &aYou are now in staff mode!
+	staffmode out of staff mode: &aYou are no longer in staff mode!
+	staffmode usage: &c/staffmode
+	staffmode permission: group.staff
+	staffmode permission message: &cNo Permission!
+	staffmode cooldown: 5 seconds
+	staffmode cooldown message: &cThere is a cooldown!
+	
+	staffmode hide players: group.staff # These are all of the players that do not have permission will not see the player in staff mode
+	
+	freeze item enabled: true
+	freeze item: packed ice
+	freeze item slot: 1 # First Slot
+	freeze item name: &b&lFREEZE
+	freeze item lore: &7&nLeft Click&7 a player to freeze them!%nl%&7&nRight Click&7 a player to unfreeze them!
+	freeze left click command: skript:freeze %name of target% # Use %name of target% instead of %player%
+	freeze right click command: skript:unfreeze %name of target% # Use %name of target% instead of %player%
+	
+	invsee item enabled: true
+	invsee item: chest
+	invsee item slot: 7 # First Slot
+	invsee item name: &a&lINVSEE
+	invsee item lore: &7&nLeft Click&7 a player to view their inventory!%nl%&7&nRight Click&7 a player to look into their enderchest!
+	invsee left click command: skript:invsee %name of target% # Use %name of target% instead of %player%
+	invsee right click command: skript:enderchest %name of target% # Use %name of target% instead of %player%
+
+#  Freeze/Unfreeze   ( /freeze + /unfreeze )
+	freeze usage: &c/freeze <player>
+	freeze permission: group.staff
+	freeze permission message: &cNo Permission!
+	freeze cooldown: 5 seconds
+	freeze cooldown message: &cThere is a cooldown!
+	
+	freeze permission to not be frozen: group.staff # This makes sure the player does not have the permission to be frozen
+
+#  Staff Chat   ( /sc, /schat, /staffc, /staffchat )
+	staffchat usage: &c/staffchat <text>
+	staffchat permission: group.staff
+	staffchat permission message: &cYou do not have permission for this!
+	staffchat cooldown: 0 seconds
+	staffchat cooldown message: &cThere is a cooldown!
+	
+	staffchat send to: group.staff
+	
+#  Report Player  ( /report <player> <reason> )
+	report require reason: true # It makes players have a reason to report them!
+	report require reason message: &cYou need a reason to report that player!
+	
+	report success message: &aYou have successfully reported %arg-1%! Our Staff will look into it!
+	report alert staff message: &4-----&cReport!&4-----%nl%&7      /reports
+	report staff permission: group.staff # This sends the alert staff message to all players with this permission!
+	
+	report usage: &c/report <player>
+	report permission: group.default # I would not recommend changing this if you use LuckPerms and use the default role for the beginner
+	report permission message: &cNo Permission
+	report cooldown: 5 seconds # Cooldown for the /report <player> command
+	report cooldown message: &cThere is a cooldown! # Cooldown message
+	
+#  Reports ( /listreports, /reportlist, /openreports, /reports )
+	reports usage: &c/reports
+	reports permission: group.staff
+	reports permission message: &cNo Permission
+	reports cooldown: 5 seconds
+	reports cooldown message: &cThere is a cooldown!
+	
+	reports gui title: &8Reports
+	reports gui rows: 6 # I would keep this at 6
+	reports gui block: red concrete
+	reports gui item name: &c%loop-value% # Do Not Change this Unless you know what you are doing!
+	reports gui item lore: &7Reporter: %{_l4::%loop-index%}%%nl%&7When: %{_l3::%loop-index%}%%nl%&7Reason: %{_l2::%loop-index%}% # Do Not Change this Unless you know what you are doing!
+	
+#  Clear Reports ( /clearreports )
+	c-reports usage: &c/clearreports
+	c-reports permission: op
+	c-reports permission message: &cNo Permission
+	c-reports cooldown: 5 seconds
+	c-reports cooldown message: &cThere is a cooldown!
+	
+#  Invsee  ( /openinv, /invlook, /invopen, /invsee )
+	invsee usage: &c/invsee <player>
+	invsee permission: group.staff
+	invsee permission message: &cNo Permission!
+	invsee cooldown: 0 seconds
+	invsee cooldown message: &cThere is a cooldown!
+	
+#  EnderChest ( /ec, /openec, /openenderchest, /openechest, /enderchest )
+	enderchest usage: &c/enderchest <player>
+	enderchest permission: group.staff
+	enderchest permission message: &cNo Permission
+	enderchest cooldown: 0 seconds
+	enderchest cooldown message: &cThere is a cooldown!
+
+#  Discord Integration
+	discord enabled: false
+	discord bot name: BOT NAME
+	discord bot token: MTE5MDExNjM0MzU2ODEzODMzMA.GCbhpm.DpRm5qVLQ27j49i34IXTWeuhUU8pLaulhwTGpU # Ex. MTE5MDExNjM0MzU2ODEzODMzMA.GCbhpm.DpRm5qVLQ27j49i34IXTWeuhUU8pLaulhwTGpU
+	discord report channel id: 000
+import:
+	org.bukkit.event.player.PlayerMoveEvent
+
+define new bot named "{@discord bot name}":
+	token: "{@discord bot token}"
+	intents: default intents
+	policy: all
+	auto reconnect: true
+	compression: none
+
+	on ready:
+		send "&a%event-bot%&2 has been loaded!" to console 
+command /staffmode:
+	permission: {@staffmode permission}
+	permission message: {@staffmode permission message}
+	cooldown: {@staffmode cooldown}
+	cooldown message: {@staffmode cooldown message}
+	usage: {@staffmode usage}
+	executable by: players
+	trigger:
+		if {staffmode::%player's uuid%} is not set:
+			set {_n} to 0
+			loop 41 times: 
+				set {staffinv::%player's uuid%::%{_n}%} to slot {_n} of player
+				add 1 to {_n}
+			clear player's inventory
+			loop all players:
+				loop-player does not have permission "{@staffmode hide players}":
+					hide player from loop-player
+			set {staffmode::%player's uuid%} to true
+			send "{@staffmode in staff mode}"
+			set player's gamemode to {@staffmode gamemode}
+			if {@freeze item enabled} = true:
+				set slot {@freeze item slot} of player to {@freeze item} named "{@freeze item name}" with lore "{@freeze item lore}"
+			if {@invsee item enabled} = true:
+				set slot {@invsee item slot} of player to {@invsee item} named "{@invsee item name}" with lore "{@invsee item lore}"
+			stop
+		else:
+			set {_n} to 0
+			loop 41 times:
+				set slot {_n} of player to {staffinv::%player's uuid%::%{_n}%}
+				delete {staffinv::%player's uuid%::%{_n}%}
+				add 1 to {_n}
+			delete {staffmode::%player's uuid%}
+			send "{@staffmode out of staff mode}"
+			reveal player to all players
+			set player's gamemode to {@staffmode bgamemode}
+
+on right click:
+	if {staffmode::%player's uuid%} is set:
+		target is a player
+		if name of player's tool is "{@freeze item name}":
+			execute player command "{@freeze right click command}"
+		if name of player's tool is "{@invsee item name}":
+			execute player command "{@invsee right click command}"
+on arm swing:
+	if {staffmode::%player's uuid%} is set:
+		target is a player
+		if name of player's tool is "{@freeze item name}":
+			execute player command "{@freeze left click command}"
+		if name of player's tool is "{@invsee item name}":
+			execute player command "{@invsee left click command}"
+command /freeze <offline player>:
+	permission: {@freeze permission}
+	permission message: {@freeze permission message}
+	cooldown: {@freeze cooldown}
+	cooldown message: {@freeze cooldown message}
+	usage: {@freeze usage}
+	trigger:
+		if arg-1 has permission "group.staff":
+			send "&cYou cannot Freeze that player!"
+			stop
+		set {froze::%arg-1's uuid%} to true
+		send "&aYou have froze %arg-1%"
+		send "&aYou are now frozen!" to arg-1
+		loop all players:
+			loop-player does not have permission "group.staff":
+				hide arg-1 from loop-player 
+
+command /unfreeze <offline player>:
+	trigger:
+		delete {froze::%arg-1's uuid%}
+		send "&aYou have unfrozen %arg-1%!"
+		send "&aYou are free to leave!" to arg-1
+		reveal arg-1 to all players
+		
+on PlayerMoveEvent:
+	if {froze::%event.getPlayer()'s uuid%} is set:
+		cancel event
+
+command /staffchat <text>:
+	aliases: /sc, /schat, /staffc
+	permission: {@staffchat permission}
+	permission message: {@staffchat permission message}
+	cooldown: {@staffchat cooldown}
+	cooldown message: {@staffchat cooldown message}
+	usage: {@staffchat usage}
+	trigger:
+		loop all players:
+			loop-player has permission "group.staff":
+				send "&e[Staff]&7 %player%: %arg-1%" to loop-player
+					
+command /report <player> <text>:
+	permission: {@report permission}
+	permission message: {@report permission message}
+	cooldown: {@report cooldown}
+	cooldown message: {@report cooldown message}
+	usage: {@report usage}
+	trigger:
+		if {@report require reason} = true:
+			if arg-2 is not set:
+				send "{@report require reason message}"
+			else:
+				send "{@report success message}" to player
+				set {report.player::%unix timestamp of now%} to arg-1
+				set {report.reason::%unix timestamp of now%} to arg-2
+				set {report.time-since::%unix timestamp of now%} to now
+				set {report.reporter::%unix timestamp of now%} to player
+				loop all players:
+					loop-player has permission "group.staff":
+						send "{@report alert staff message}" to loop-player
+				if {@discord enabled} = true:
+					make embed:
+						set title of embed to "Report!"
+						set description of embed to "Player: %arg-1%%nl%Reporter: %player%%nl%Reason: %arg-2%"
+					post last embed to text channel with id "{@discord report channel id}"
+		else:
+			send "{@report success message}" to player
+			set {report.player::%unix timestamp of now%} to arg-1
+			set {report.reason::%unix timestamp of now%} to arg-2
+			set {report.time-since::%unix timestamp of now%} to now
+			loop all players:
+				loop-player has permission "group.staff":
+					send "{@report alert staff message}"
+			if {@discord enabled} = true:
+				make embed:
+					set title of embed to "Report!"
+					set description of embed to "Player: %arg-1%%nl%Reporter: %player%%nl%Reason: %arg-2%"
+				post last embed to text channel with id "{@discord report channel id}"
+
+command /reports:
+	aliases: /listreports, /reportlist, /openreports
+	permission: {@reports permission}
+	permission message: {@reports permission message}
+	cooldown: {@reports cooldown}
+	cooldown message: {@reports cooldown message}
+	usage: {@reports usage}
+	trigger:
+		openReports(player)
+
+function openReports(p: player):
+	set {_l1::*} to reversed {report.player::*}
+	set {_l2::*} to reversed {report.reason::*}
+	set {_l3::*} to reversed {report.time-since::*}
+	set {_l4::*} to reversed {report.reporter::*}
+	set {_openReports} to a new chest inventory with {@reports gui rows} rows named "{@reports gui title}"
+	set {_n} to 0
+	loop {_l1::*}:
+		set slot {_n} of {_openReports} to {@reports gui block} named "{@reports gui item name}" with lore "{@reports gui item lore}"
+		add 1 to {_n}
+	open {_openReports} to {_p}
+
+command /clearreports:
+	permission: {@c-reports permission}
+	permission message: {@c-reports permission message}
+	cooldown: {@c-reports cooldown}
+	cooldown message: {@c-reports cooldown message}
+	usage: {@c-reports usage}
+	trigger:
+		delete {report.player::*}
+		delete {report.reason::*}
+		delete {report.time-since::*}
+
+command /invsee <offline player>:
+	aliases: /openinv, /invlook, /invopen
+	permission: {@invsee permission}
+	permission message: {@invsee permission message}
+	cooldown: {@invsee cooldown}
+	cooldown message: {@invsee cooldown message}
+	usage: {@invsee usage}
+	trigger:
+		open the arg-1's inventory for the player
+
+command /enderchest <offline player>:
+	aliases: /ec, /openec, /openenderchest, /openechest
+	permission: {@enderchest permission}
+	permission message: {@enderchest permission message}
+	cooldown: {@enderchest cooldown}
+	cooldown message: {@enderchest cooldown message}
+	usage: {@enderchest usage}
+	trigger:
+		open the arg-1's enderchest for the player
+on chat:
+	if {staffmode::%player's uuid%} is set:
+		cancel event
+		execute player command "staffchat %message%"
+on drop:
+	if {staffmode::%player's uuid%} is set:
+		cancel event
+
+on place:
+	if {staffmode::%player's uuid%} is set:
+		cancel event
+
+on break:
+	if {staffmode::%player's uuid%} is set:
+		cancel event
+
+on damage:
+	if {staffmode::%attacker's uuid%} is set:
+		cancel event
+
+on inventory click:
+	if {staffmode::%player's uuid%} is set:
+		cancel event
+	name of event-inventory is "{@reports gui title}":
+		cancel event
+		
+
+on pickup:
+	if {staffmode::%player's uuid%} is set:
+		cancel event
